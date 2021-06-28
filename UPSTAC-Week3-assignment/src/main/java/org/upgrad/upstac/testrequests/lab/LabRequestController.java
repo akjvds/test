@@ -57,8 +57,6 @@ public class LabRequestController {
        return testRequestQueryService.findBy(RequestStatus.INITIATED);
 
 
-
-
     }
 
     @GetMapping
@@ -72,21 +70,22 @@ public class LabRequestController {
         //Make use of the findByTester() method from testRequestQueryService class
         // For reference check the method getForTests() method from LabRequestController class
 
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,"Not implemented"); // replace this line with your code
+        try {
+            User user = userLoggedInService.getLoggedInUser();
+             return testRequestQueryService.findByTester(user);
 
+        }  catch (AppException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED, "Not Tester"); // replace this line with your code
 
+        }
     }
 
 
     @PreAuthorize("hasAnyRole('TESTER')")
     @PutMapping("/assign/{id}")
     public TestRequest assignForLabTest(@PathVariable Long id) {
-
-
-
         User tester =userLoggedInService.getLoggedInUser();
-
-      return   testRequestUpdateService.assignForLabTest(id,tester);
+       return   testRequestUpdateService.assignForLabTest(id,tester);
     }
 
     @PreAuthorize("hasAnyRole('TESTER')")
@@ -97,16 +96,12 @@ public class LabRequestController {
 
             User tester=userLoggedInService.getLoggedInUser();
             return testRequestUpdateService.updateLabTest(id,createLabResult,tester);
-
-
         } catch (ConstraintViolationException e) {
             throw asConstraintViolation(e);
         }catch (AppException e) {
             throw asBadRequest(e.getMessage());
         }
     }
-
-
 
 
 
